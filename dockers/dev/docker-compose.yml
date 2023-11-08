@@ -1,0 +1,60 @@
+version: '3'
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    ports:
+      - ${WEB_PORTS:-80:80}
+    volumes:
+      - ../../example-app:/var/www/html
+      - ./nginx/conf.d/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - backend-network
+    depends_on:
+      - postgres
+      - api
+
+  api:
+    container_name: api
+    build: ./images/php
+    volumes:
+      - ../../example-app:/var/www/html
+      - ./logs/php.log:/var/log/fpm-php.www.log
+    networks:
+      - backend-network
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres:16.0-alpine
+    restart: "always"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres} 
+    ports:
+      - ${POSTGRES_PORTS:-5432:5432}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+
+  adminer:
+    container_name: adminer
+    image: adminer:4.8.1
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - ${ADMINER_PORTS:-8081:8080}
+    networks:
+      - backend-network
+    depends_on:
+      - postgres
+
+networks:
+  backend-network:
+    driver: bridge 
+
+volumes:
+  postgres_data:
