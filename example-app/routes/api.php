@@ -1,17 +1,20 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/files', [FileController::class, 'store']);
+    Route::get('/files/{fileName}', [FileController::class, 'download']);
+    Route::patch('/files/{fileName}', [FileController::class, 'edit']);
+    Route::delete('/files/{fileName}', [FileController::class, 'delete']);
+    Route::get('/files/disk', [FileController::class, 'showAll']);
+
+    Route::get('/logout', [AuthController::class, 'logout']);
 });
 
-Route::get('/', function () {
-    return 'asd';
-});
-
-Route::get('/signup', [AuthController::class, 'signUp']);
-Route::get('/login', [AuthController::class, 'login']);
+Route::post('/registration', [AuthController::class, 'signUp']);
+Route::post('/authorization', [AuthController::class, 'login']);
 
