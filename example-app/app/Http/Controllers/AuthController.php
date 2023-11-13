@@ -65,7 +65,7 @@ class AuthController extends Controller
 
         $validated = $validator->validated();
 
-        $user = User::query()->where('email', $validated['email'])->where('password', $validated['password'])->first();
+        $user = User::getByEmailAndPassword($validated['email'], $validated['password']);
         if ($user) {
             $token = $user->createToken('myapp-token')->plainTextToken;
 

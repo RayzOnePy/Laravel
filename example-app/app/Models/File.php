@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 class File extends Model
 {
@@ -14,7 +13,7 @@ class File extends Model
 
     protected $guarded = [];
 
-    public static function findByName(int $userId, string $name): model
+    public static function findByName(int $userId, string $name): Model
     {
         return File::query()->where('user_id', $userId)->where('full_name', $name)->first();
     }
