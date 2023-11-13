@@ -6,11 +6,28 @@ use App\Models\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class FileController extends Controller
 {
+    /**
+     * @throws ValidationException
+     */
     public function store(Request $request): JsonResponse
     {
+        $rules = array(
+            'file' => ['file', 'max:2048', 'mimes: doc, pdf, docx, zip, jpeg, jpg, png'],
+        );
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation error'], 422);
+        }
+
+        $validated = $validator->validated();
+
         $fileName = $request->input('name');
         $fileExtension = $request->file('image')->extension();
         $fileFullName = $fileName . '.' . $fileExtension;
