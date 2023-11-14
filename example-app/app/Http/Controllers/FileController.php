@@ -22,6 +22,7 @@ class FileController extends Controller
         $filePath = 'uploads/' . $request->user()->id . $request->user()->first_name . $request->user()->last_name;
         $fileFullPath = $filePath . '/' . $fileFullName;
         $fileUserId = $request->user()->id;
+
         $file = File::create([
             'name' => $fileName,
             'extension' => $fileExtension,
@@ -31,6 +32,7 @@ class FileController extends Controller
         ]);
 
         $request->file('file')->storeAs($filePath, $fileFullName);
+
         return response()->json(['success' => true, 'code' => 200, 'message' => 'Success', 'name' => $fileFullName, 'url' => $fileFullPath], 200);
     }
 
@@ -38,7 +40,7 @@ class FileController extends Controller
     {
         $file = File::findByName($request->user()->id, $fileName);
 
-        if ($file == null || Storage::fileExists($file->getPathWithName()) == null) {
+        if (is_null($file) || is_null(Storage::fileExists($file->getPathWithName()))) {
             return response()->json(['message' => 'Not found', 'code' => 404], 404);
         }
 
@@ -53,7 +55,7 @@ class FileController extends Controller
     {
         $file = File::findByName($request->user()->id, $fileName);
 
-        if ($file == null || Storage::fileExists($file->getPathWithName()) == null) {
+        if (is_null($file) || is_null(Storage::fileExists($file->getPathWithName()))) {
             return response()->json(['message' => 'Not found', 'code' => 404], 404);
         }
 
@@ -61,6 +63,7 @@ class FileController extends Controller
 
         $fileOldPath = $file->getPathWithName();
         $fileNewPath = $filePath . '/' . $request['new_name'] . '.' . $file->getExtension();
+//        $fileNewPath = "$filePath/{$request['new_name']}.$file->getExtension()"; так читается хуже
 
         Storage::move($fileOldPath, $fileNewPath);
 
@@ -76,7 +79,7 @@ class FileController extends Controller
     {
         $file = File::findByName($request->user()->id, $fileName);
 
-        if ($file == null || Storage::fileExists($file->getPathWithName()) == null) {
+        if (is_null($file) || is_null(Storage::fileExists($file->getPathWithName()))) {
             return response()->json(['message' => 'Not found', 'code' => 404], 404);
         }
 
@@ -89,6 +92,7 @@ class FileController extends Controller
     public function showAll(Request $request): JsonResponse
     {
         $files = File::findAllByUser($request->user()->id);
+
         return response()->json(['files' => $files], 200);
     }
 }
