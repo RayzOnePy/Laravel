@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FileStoreRequest;
 use App\Models\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class FileController extends Controller
@@ -14,22 +14,10 @@ class FileController extends Controller
     /**
      * @throws ValidationException
      */
-    public function store(Request $request): JsonResponse
+    public function store(FileStoreRequest $request): JsonResponse
     {
-        $rules = array(
-            'file' => ['file', 'max:2048', 'mimes: doc, pdf, docx, zip, jpeg, jpg, png'],
-        );
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Validation error'], 422);
-        }
-
-        $validated = $validator->validated();
-
         $fileName = $request->input('name');
-        $fileExtension = $request->file('image')->extension();
+        $fileExtension = $request->file('file')->extension();
         $fileFullName = $fileName . '.' . $fileExtension;
         $filePath = 'uploads/' . $request->user()->id . $request->user()->first_name . $request->user()->last_name;
         $fileFullPath = $filePath . '/' . $fileFullName;
@@ -42,8 +30,7 @@ class FileController extends Controller
             'user_id' => $fileUserId
         ]);
 
-        $request->file('image')->storeAs($filePath, $fileFullName);
-
+        $request->file('file')->storeAs($filePath, $fileFullName);
         return response()->json(['success' => true, 'code' => 200, 'message' => 'Success', 'name' => $fileFullName, 'url' => $fileFullPath], 200);
     }
 
