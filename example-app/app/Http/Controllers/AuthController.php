@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -28,10 +29,9 @@ class AuthController extends Controller
     /**
      * @throws ValidationException
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::getByEmailAndPassword($request['email'], $request['password']);
-
+        $user = User::getByEmailAndPassword($request->get('email'), $request->get('password'));
         if ($user) {
             $token = $user->createToken('myapp-token')->plainTextToken;
 

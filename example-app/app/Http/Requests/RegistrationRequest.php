@@ -23,4 +23,11 @@ class RegistrationRequest extends FormRequest
             'last_name' => ['required', 'string'],
         ];
     }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        ValidationField::fieldValidation($validator);
+    }
+
+
 }

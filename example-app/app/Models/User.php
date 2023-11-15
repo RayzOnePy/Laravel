@@ -41,10 +41,16 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public static function getByEmailAndPassword(string $email, string $password): ?Model
     {
-        return User::query()->where('email', $email)->where('password', $password)->first();
+        $user = User::query()->where('email', $email)->first();
+        if(password_verify($password, $user->password))
+        {
+            return $user;
+        }
+        return null;
     }
 }
