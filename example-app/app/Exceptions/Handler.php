@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -29,33 +30,22 @@ class Handler extends ExceptionHandler
         });
     }
 
-    public function render($request, Exception|Throwable $exception)
+    public function render($request, Exception|Throwable $e): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response|null
     {
-        if ($request->wantsJson())  {
-            return $this->handleApiException($request, $exception);
+        if ($request->wantsJson()) {
+            return $this->handleApiException($request, $e);
         }
-        return parent::render($request, $exception);
+        return parent::render($request, $e);
     }
 
     private function handleApiException($request, Exception|Throwable $exception)
     {
-//        $exception = $this->prepareException($exception);
-
-        if ($exception instanceof \Illuminate\Http\Exception\HttpResponseException) {
-            $exception = $exception->getResponse();
-        }
-
-        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
-            $exception = $this->unauthenticated($request, $exception);
-        }
-
-        if ($exception instanceof \Illuminate\Validation\ValidationException) {
-            $exception = $this->convertValidationExceptionToResponse($exception, $request);
-        }
-
         if ($exception instanceof NotFoundHttpException) {
             return response()->json(['message' => 'Not found', 'code' => 404], 404);
         }
 
+        if ($exception instanceof NotFoundHttpException) {
+            return response()->json(['success' => false, 'code' => 401, 'message' => 'Authorization failed'], 401);
+        }
     }
 }

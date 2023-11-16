@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ApiException;
+use App\Exceptions\TestException;
 use App\Http\Requests\FileStoreRequest;
 use App\Models\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FileController extends Controller
 {
@@ -41,7 +44,7 @@ class FileController extends Controller
         $file = File::findByName($request->user()->id, $fileName);
 
         if (is_null($file) || is_null(Storage::fileExists($file->getPathWithName()))) {
-            return response()->json(['message' => 'Not found', 'code' => 404], 404);
+            throw new NotFoundHttpException();
         }
 
         $fileFullPath = $file->getPathWithName();
@@ -56,7 +59,7 @@ class FileController extends Controller
         $file = File::findByName($request->user()->id, $fileName);
 
         if (is_null($file) || is_null(Storage::fileExists($file->getPathWithName()))) {
-            return response()->json(['message' => 'Not found', 'code' => 404], 404);
+            throw new NotFoundHttpException();
         }
 
         $filePath = $file->getPath();
@@ -80,7 +83,7 @@ class FileController extends Controller
         $file = File::findByName($request->user()->id, $fileName);
 
         if (is_null($file) || is_null(Storage::fileExists($file->getPathWithName()))) {
-            return response()->json(['message' => 'Not found', 'code' => 404], 404);
+            throw new NotFoundHttpException();
         }
 
         Storage::delete($file->getPathWithName());

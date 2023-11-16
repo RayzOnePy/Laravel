@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AuthException;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Models\User;
@@ -28,6 +29,7 @@ class AuthController extends Controller
 
     /**
      * @throws ValidationException
+     * @throws AuthException
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -40,7 +42,7 @@ class AuthController extends Controller
             return response()->json(['success' => true, 'code' => 200, 'message' => 'Success', 'token' => $token], 200);
         }
 
-        return response()->json(['success' => false, 'code' => 401, 'message' => 'Authorization failed'], 401);
+        throw new AuthException();
     }
 
     public function logout(Request $request): ?JsonResponse
